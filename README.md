@@ -27,27 +27,51 @@ When the above command is issued, the result should look something like this:
 
 	================================================================================
 
-	Results for example resources:
+	I. Results for example resources:
 
 	 Dereferencing http://dbpedia.org/data/Digital_Enterprise_Research_Institute.rdf
 
-	  Run 0: 0.216471910477ms
-	  Run 1: 0.0791869163513ms
-	  Run 2: 0.0769400596619ms
-	  Run 3: 0.0776801109314ms
-	  Run 4: 0.0769898891449ms
+	  Run 0: 0.121638059616ms
+	  Run 1: 0.0866210460663ms
+	  Run 2: 0.0787258148193ms
+	  Run 3: 0.0795500278473ms
+	  Run 4: 0.079206943512ms
 	  -------------------------
-	  Average: 0.105453777313ms
+	  Average: 0.0891483783722ms
 
 	 Dereferencing http://dbpedia.org/data/Galway.rdf
 
-	  Run 0: 0.568041086197ms
-	  Run 1: 0.368092060089ms
-	  Run 2: 0.369071006775ms
-	  Run 3: 0.954349994659ms
-	  Run 4: 2.14417719841ms
+	  Run 0: 0.367477178574ms
+	  Run 1: 0.36781001091ms
+	  Run 2: 0.366918802261ms
+	  Run 3: 0.396972179413ms
+	  Run 4: 0.366279840469ms
 	  -------------------------
-	  Average: 0.880746269226ms
+	  Average: 0.373091602325ms
+
+	II. Results for SPARQL end point:
+
+	 Executing queries againt http://dbpedia.org/sparql
+
+	 Query: SELECT ?s WHERE { ?s ?p ?o } LIMIT 1
+
+	  Run 0: 0.0598089694977ms
+	  Run 1: 0.0606231689453ms
+	  Run 2: 0.0609130859375ms
+	  Run 3: 0.0849769115448ms
+	  Run 4: 0.0592401027679ms
+	  -------------------------
+	  Average: 0.0651124477386ms
+
+	 Query: SELECT ?s WHERE { ?s a ?o } LIMIT 1
+
+	  Run 0: 0.062292098999ms
+	  Run 1: 0.0598909854889ms
+	  Run 2: 0.0597748756409ms
+	  Run 3: 0.0594980716705ms
+	  Run 4: 0.0634031295776ms
+	  -------------------------
+	  Average: 0.0609718322754ms
 
 	================================================================================
 

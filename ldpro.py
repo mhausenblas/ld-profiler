@@ -9,8 +9,6 @@ import sys
 import os
 sys.path.insert(0, os.getcwd() + 'lib/')
 import getopt
-import logging
-
 import platform
 import urllib
 import urllib2
@@ -26,7 +24,7 @@ from rdflib import Literal
 from rdflib import RDF
 from rdflib import XSD
 from rdflib.plugin import PluginException
-from SPARQLWrapper import SPARQLWrapper, JSON
+from SPARQLWrapper import SPARQLWrapper
 
 rdflib.plugin.register('sparql', rdflib.query.Processor, 'rdfextras.sparql.processor', 'Processor')
 rdflib.plugin.register('sparql', rdflib.query.Result, 'rdfextras.sparql.query', 'SPARQLQueryResult')
@@ -37,7 +35,9 @@ class LinkedDataProfiler(object):
 	
 	WORK_DIR = 'tmp/'
 	
-	NAMESPACES = { 'void' : Namespace('http://rdfs.org/ns/void#'), 'dc' : Namespace('http://purl.org/dc/terms/') }
+	NAMESPACES = {	'void' : Namespace('http://rdfs.org/ns/void#'), 
+					'dc' : Namespace('http://purl.org/dc/terms/') 
+	}
 
 	LDID_QUERY = """SELECT * WHERE { 
 					?ds a void:Dataset ; 
@@ -47,11 +47,16 @@ class LinkedDataProfiler(object):
 						OPTIONAL { ?ds void:exampleResource ?example . } 
 	}"""
 	
+	SPARQL_EP_QUERIES = {	'Q1' : 'SELECT ?s WHERE { ?s ?p ?o } LIMIT 1',
+							'Q2' : 'SELECT ?s WHERE { ?s a ?o } LIMIT 1'
+	}
+	
+	
 	def __init__(self):
 		self.g = Graph()
 		self.g.bind('void', LinkedDataProfiler.NAMESPACES['void'], True)
 		self.g.bind('dc', LinkedDataProfiler.NAMESPACES['dc'], True)
-		self.timr = { 'examples' : {}, 'sparql' : [] }
+		self.timr = { 'examples' : {}, 'sparql' : {} }
 
 	def setup(self, ldid):
 		if LinkedDataProfiler.DEBUG: print("Parsing [%s] for Linked Data interface description ..." %ldid)
@@ -60,11 +65,35 @@ class LinkedDataProfiler(object):
 			os.makedirs(LinkedDataProfiler.WORK_DIR)
 
 	def profile_all(self, number_of_runs = 1):
+		# profile all void:exampleResource ...
 		for ex in self.examples:
 			runs = []
 			for r in range(number_of_runs):
-				runs.append(ldpro.profile_example(ex))
+				runs.append(self.profile_example(ex))
 			self.timr['examples'][ex] = runs
+			
+		# profile the void:sparqlEndpoint ...
+		for q in LinkedDataProfiler.SPARQL_EP_QUERIES:
+			runs = []		
+			for r in range(number_of_runs):
+				runs.append(self.profile_sparql(LinkedDataProfiler.SPARQL_EP_QUERIES[q]))
+			self.timr['sparql'][q] = runs
+
+	def profile_sparql(self, query_str):
+		t = stopwatch.Timer()
+		res = self.query_SPARQL_Endpoint(self.sparl_ep, query_str)
+		t.stop()
+		if LinkedDataProfiler.DEBUG: print("HTTP metadata: [%s]" %res)
+		return t
+	
+	def query_SPARQL_Endpoint(self, endpoint_URI, query_str):
+		try:
+			sparql = SPARQLWrapper(endpoint_URI)
+			sparql.setQuery(query_str)
+			results = sparql.query().info()
+			return results
+		except Exception, e:
+			print('I was not able to execute the SPARQL query against %s\nReason: %s' %(endpoint_URI,e))
 
 	def profile_example(self, ex):
 		g = Graph()
@@ -73,9 +102,8 @@ class LinkedDataProfiler(object):
 		t = stopwatch.Timer()
 		self.load_example(g, example_URI=ex)
 		t.stop()
-		
-		file_name = ''.join([LinkedDataProfiler.WORK_DIR, ex.split('/')[-1], '.ttl'])
-		self.store_example(g, file_name)
+		# file_name = ''.join([LinkedDataProfiler.WORK_DIR, ex.split('/')[-1], '.ttl'])
+		# self.store_example(g, file_name)
 		return t
 
 	def load_example(self, g, example_URI):
@@ -128,7 +156,8 @@ class LinkedDataProfiler(object):
 		
 	def report(self):
 		print('\n' + '='*80 + '\n')
-		print("Results for example resources:\n")
+		
+		print("I. Results for example resources:\n")
 		for ex in self.examples:
 			print(" Dereferencing %s\n" %ex)
 			i = 0
@@ -140,8 +169,24 @@ class LinkedDataProfiler(object):
 			print('  ' +'-'*25)
 			average = float(sum(values)) / len(values)
 			print("  Average: %sms" %average)
-			
 			print("")
+		
+		print("II. Results for SPARQL end point:\n")
+		print(" Executing queries againt %s\n" %self.sparl_ep)
+		
+		for q in LinkedDataProfiler.SPARQL_EP_QUERIES:
+			i = 0
+			values = []
+			print(" Query: %s\n" %(LinkedDataProfiler.SPARQL_EP_QUERIES[q]))
+		 	for t in self.timr['sparql'][q]:
+				print("  Run %s: %sms" %(i, t.elapsed))
+				i = i + 1
+				values.append(t.elapsed)
+			print('  ' +'-'*25)
+			average = float(sum(values)) / len(values)
+			print("  Average: %sms" %average)
+			print("")
+			
 		print('\n' + '='*80 + '\n')
 
 	def usage(self):
