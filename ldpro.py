@@ -145,19 +145,19 @@ class LinkedDataProfiler(object):
 		print('\n' + '='*80 + '\n')
 
 	def usage(self):
-		print("Usage: python ldpro.py -l {path to Linked Data interface description file} [number of runs (optional, defaults to 3)]")
-		print("Example: python ldpro.py -l test/ldid-dbpedia.ttl")
+		print("Usage: python ldpro.py -p {path to Linked Data interface description file} [number of runs (optional, defaults to 3)]")
+		print("Example: python ldpro.py -p test/ldid-dbpedia.ttl")
 
 if __name__ == "__main__":
 	ldpro = LinkedDataProfiler()
 
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], "hl:c:", ["help", "ldid", "check"])
+		opts, args = getopt.getopt(sys.argv[1:], "hp:c:", ["help", "profile", "check"])
 		for opt, arg in opts:
 			if opt in ("-h", "--help"):
 				ldpro.usage()
 				sys.exit()
-			elif opt in ("-l", "--ldid"):
+			elif opt in ("-p", "--profile"):
 				ldpro.setup(arg)
 				try:
 					number_of_runs = args[0]
