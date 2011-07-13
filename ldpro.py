@@ -14,9 +14,10 @@ import logging
 import platform
 import urllib
 import urllib2
+import uuid
 import StringIO
 import datetime
-from timeit import Timer
+import stopwatch
 import rdflib
 from rdflib import Graph
 from rdflib import Namespace
@@ -50,13 +51,21 @@ class LinkedDataProfiler(object):
 		print("Parsing [%s] for Linked Data interface description ..." %ldid)
 		self.load_ldid(ldid)
 		self.status_dump()
+
+	def profile_all(self, runs = 10):
+		for r in range(runs):
+			t = stopwatch.Timer()
+			ldpro.profile_examples()
+			t.stop()
+			print t.elapsed
 		
-	def profile_examples(self):
+	def profile_examples(self):		
 		for ex in self.examples:
 			g = Graph()
+			print(" GETing: %s" %ex)
 			self.load_example(g, example_URI=ex)
-			if g:
-			 	print(g.serialize(format='n3'))
+			file_name = ''.join([os.getcwd(), '/tmp/', ex.split('/')[-1], '.ttl'])
+			self.store_example(g, file_name)
 
 	def load_example(self, g, example_URI):
 		if example_URI.endswith('.rdf'):
@@ -69,6 +78,11 @@ class LinkedDataProfiler(object):
 			g.parse(location = example_URI, format="rdfa")
 		else:
 			g.parse(location = example_URI)
+
+	def store_example(self, g, filename):
+		ex_file = open(filename, 'w')
+		ex_file.write(g.serialize(format='n3'))
+		ex_file.close()
 		
 	def load_ldid(self, file_name):
 		self.g.parse(file_name, format='n3')
@@ -116,7 +130,7 @@ if __name__ == "__main__":
 				sys.exit()
 			elif opt in ("-l", "--ldid"):
 				ldpro.setup(arg)
-				print Timer("ldpro.profile_examples", "from __main__ import ldpro").timeit(number=100)
+				ldpro.profile_all()
 				pass
 	except getopt.GetoptError, err:
 		print str(err)
