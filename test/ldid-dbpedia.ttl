@@ -15,8 +15,8 @@
     void:sparqlEndpoint <http://dbpedia.org/sparql>;
     void:dataDump <http://downloads.dbpedia.org/3.5.1/all_languages.tar>;
     void:exampleResource
-        <http://dbpedia.org/data/DBpedia.rdf>,
-        <http://dbpedia.org/data/DBpedia.n3>,
-        <http://dbpedia.org/page/DBpedia>;
+        <http://dbpedia.org/resource/Digital_Enterprise_Research_Institute>,
+        <http://dbpedia.org/resource/Linked_Data>,
+        <http://dbpedia.org/resource/Galway>;
     dcterms:subject <http://lod-cloud.net/themes/crossdomain>;
 .
