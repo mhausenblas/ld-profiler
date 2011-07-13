@@ -8,5 +8,6 @@
     dcterms:description "DBpedia.org is a community effort to extract structured information from Wikipedia and to make this information available on the Web.";
     void:sparqlEndpoint <http://dbpedia.org/sparql>;
     void:exampleResource
-        <http://dbpedia.org/data/Galway.rdf>;
+        <http://dbpedia.org/data/Galway.rdf>,
+		<http://dbpedia.org/data/Digital_Enterprise_Research_Institute.rdf>;
 .
