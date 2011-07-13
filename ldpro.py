@@ -157,7 +157,7 @@ class LinkedDataProfiler(object):
 	def report(self):
 		print('\n' + '='*80 + '\n')
 		
-		print("I. Results for example resources:\n")
+		print("I. Results for example resources\n")
 		for ex in self.examples:
 			print(" Dereferencing %s\n" %ex)
 			i = 0
@@ -171,8 +171,8 @@ class LinkedDataProfiler(object):
 			print("  Average: %sms" %average)
 			print("")
 		
-		print("II. Results for SPARQL end point:\n")
-		print(" Executing queries againt %s\n" %self.sparl_ep)
+		print("II. Results for SPARQL end point\n")
+		print(" Executing queries against %s\n" %self.sparl_ep)
 		
 		for q in LinkedDataProfiler.SPARQL_EP_QUERIES:
 			i = 0
