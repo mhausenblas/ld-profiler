@@ -48,8 +48,12 @@ class LinkedDataProfiler(object):
 						OPTIONAL { ?ds void:exampleResource ?example . } 
 	}"""
 	
-	SPARQL_EP_QUERIES = {	'Q1' : 'SELECT ?s WHERE { ?s ?p ?o } LIMIT 1',
-							'Q2' : 'SELECT ?s WHERE { ?s a ?o } LIMIT 1'
+	SPARQL_EP_QUERIES = {	'Q1' : 'SELECT ?s WHERE { ?s ?p ?o . } LIMIT 1',
+							'Q2' : 'SELECT ?s WHERE { ?s a ?o . } LIMIT 1',
+							'Q3' : 'SELECT ?s ?p ?o WHERE { ?s ?p ?o . FILTER( isURI(?o)) } LIMIT 1',
+							'Q4' : 'SELECT ?s ?p ?o WHERE { ?s ?p ?o . FILTER( isLITERAL(?o)) } LIMIT 1',
+							'Q5' : 'SELECT ?s1 WHERE { ?s1 ?p1 ?o1 . ?o1 ?p2 ?o2 . } LIMIT 1',
+							'Q6' : 'SELECT ?s1 WHERE { ?s1 ?p1 ?o1 . ?o1 ?p2 ?o2 . FILTER( isURI(?o1)) } LIMIT 1'
 	}
 	
 	
@@ -76,18 +80,23 @@ class LinkedDataProfiler(object):
 			
 		# profile the void:sparqlEndpoint ...
 		for q in LinkedDataProfiler.SPARQL_EP_QUERIES:
-			runs = []		
+			timing = []
+			result = []
 			for r in range(number_of_runs):
-				runs.append(self.profile_sparql(LinkedDataProfiler.SPARQL_EP_QUERIES[q]))
+				(tim, res) = self.profile_sparql(LinkedDataProfiler.SPARQL_EP_QUERIES[q])
+				timing.append(tim)
+				result.append(res)
 				time.sleep(1) # politeness - wait 1s between each run
-			self.timr['sparql'][q] = runs
+			self.timr['sparql'][q] = {}
+			self.timr['sparql'][q]['timing'] = timing
+			self.timr['sparql'][q]['result'] = result
 
 	def profile_sparql(self, query_str):
 		t = stopwatch.Timer()
 		res = self.query_SPARQL_Endpoint(self.sparl_ep, query_str)
 		t.stop()
 		if LinkedDataProfiler.DEBUG: print("HTTP metadata: [%s]" %res)
-		return t
+		return (t, res)
 	
 	def query_SPARQL_Endpoint(self, endpoint_URI, query_str):
 		try:
@@ -96,7 +105,7 @@ class LinkedDataProfiler(object):
 			results = sparql.query().info()
 			return results
 		except Exception, e:
-			print('I was not able to execute the SPARQL query against %s\nReason: %s' %(endpoint_URI,e))
+			if LinkedDataProfiler.DEBUG: print('I was not able to execute the SPARQL query against %s\nReason: %s' %(endpoint_URI,e))
 
 	def profile_example(self, ex):
 		g = Graph()
@@ -181,10 +190,15 @@ class LinkedDataProfiler(object):
 			i = 0
 			values = []
 			print(" Query: %s\n" %(LinkedDataProfiler.SPARQL_EP_QUERIES[q]))
-		 	for t in self.timr['sparql'][q]:
-				print("  Run %s: %sms" %(i, t.elapsed))
+			for res in self.timr['sparql'][q]['result']:
+				if res:
+					t = self.timr['sparql'][q]['timing'][i]
+					print("  Run %s: %sms" %(i, t.elapsed))
+					values.append(t.elapsed)
+				else:
+					print("  Run %s: failed or timed out" %i)
+					values.append(0)
 				i = i + 1
-				values.append(t.elapsed)
 			print('  ' +'-'*25)
 			average = float(sum(values)) / len(values)
 			print("  Average: %sms" %average)
