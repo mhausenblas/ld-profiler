@@ -15,6 +15,7 @@ import urllib2
 import uuid
 import StringIO
 import datetime
+import time
 import stopwatch
 import rdflib
 from rdflib import Graph
@@ -70,6 +71,7 @@ class LinkedDataProfiler(object):
 			runs = []
 			for r in range(number_of_runs):
 				runs.append(self.profile_example(ex))
+				time.sleep(1) # politeness - wait 1s between each run
 			self.timr['examples'][ex] = runs
 			
 		# profile the void:sparqlEndpoint ...
@@ -77,6 +79,7 @@ class LinkedDataProfiler(object):
 			runs = []		
 			for r in range(number_of_runs):
 				runs.append(self.profile_sparql(LinkedDataProfiler.SPARQL_EP_QUERIES[q]))
+				time.sleep(1) # politeness - wait 1s between each run
 			self.timr['sparql'][q] = runs
 
 	def profile_sparql(self, query_str):
