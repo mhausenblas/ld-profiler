@@ -66,8 +66,8 @@ class LinkedDataProfiler(object):
 	def setup(self, ldid):
 		if LinkedDataProfiler.DEBUG: print("Parsing [%s] for Linked Data interface description ..." %ldid)
 		self.load_ldid(ldid)
-		if not os.path.exists(LinkedDataProfiler.WORK_DIR):
-			os.makedirs(LinkedDataProfiler.WORK_DIR)
+		# if not os.path.exists(LinkedDataProfiler.WORK_DIR):
+		# 	os.makedirs(LinkedDataProfiler.WORK_DIR)
 
 	def profile_all(self, number_of_runs = 1):
 		# profile all void:exampleResource ...
@@ -119,6 +119,7 @@ class LinkedDataProfiler(object):
 		return t
 
 	def load_example(self, g, example_URI):
+		# TODO: Accept RDF and follow redirects
 		if example_URI.endswith('.rdf'):
 			g.parse(location = example_URI)
 		elif example_URI.endswith('.ttl') or example_URI.endswith('.n3') :

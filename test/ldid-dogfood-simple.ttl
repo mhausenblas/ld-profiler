@@ -1,0 +1,12 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix void: <http://rdfs.org/ns/void#> .
+
+<http://lod-cloud.net/semantic-web-dog-food> a void:Dataset;
+    dcterms:title "Semantic Web Dog Food Corpus";
+    dcterms:description "Metadata about papers, presentations, people for several semantic web related conferences and workshops, including the most recent ISWC, ESWC and WWW events.";
+    void:sparqlEndpoint <http://data.semanticweb.org/sparql>;
+    void:exampleResource
+        <http://data.semanticweb.org/conference/dc/2010/paper/posters/A-1015/rdf>;
+.
