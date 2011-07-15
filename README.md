@@ -88,3 +88,4 @@ This software is in the Public Domain.
 
 * Web service?
 * Graphical representation?
+* JSON output
