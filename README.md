@@ -86,6 +86,7 @@ This software is in the Public Domain.
 
 ## Ideas
 
-* Web service?
-* Graphical representation?
-* JSON output
+* Web service (JSON output)
+* Graphical representation of the results (bar chart, avg.)
+* Measure throughput (?)
+* Microdata support
