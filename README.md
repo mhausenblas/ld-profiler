@@ -86,7 +86,9 @@ This software is in the Public Domain.
 
 ## Ideas
 
-* Web service (JSON output)
-* Graphical representation of the results (bar chart, avg.)
-* Measure throughput (?)
+* JSON output
+* GAE app with URI
+	* Graphical representation of the results (bar chart, avg.)
+	* Web service for interactive access
 * Microdata support
+* Measure throughput (?)
