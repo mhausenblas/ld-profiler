@@ -73,12 +73,14 @@ class LinkedDataProfiler(object):
 
 	def profile_all(self, number_of_runs = 1):
 		# profile all void:exampleResource ...
-		for ex in self.examples:
-			runs = []
-			for r in range(number_of_runs):
-				runs.append(self.profile_example(ex))
-				time.sleep(1) # politeness - wait 1s between each run
-			self.timr['examples'][ex] = runs
+		if len(self.examples) > 0:
+			print self.examples
+			for ex in self.examples:
+				runs = []
+				for r in range(number_of_runs):
+					runs.append(self.profile_example(ex))
+					time.sleep(1) # politeness - wait 1s between each run
+				self.timr['examples'][ex] = runs
 			
 		# profile the void:sparqlEndpoint ...
 		for q in LinkedDataProfiler.SPARQL_EP_QUERIES:
@@ -150,11 +152,13 @@ class LinkedDataProfiler(object):
 			self.title = str(r[1])
 			self.description = str(r[2])
 			try:
-				self.sparl_ep = str(r[3])
+				if r[3]:
+					self.sparl_ep = str(r[3])
 			except KeyError:
 				pass
 			try:
-				self.examples.append(str(r[4]))
+				if r[4]:
+					self.examples.append(str(r[4]))
 			except KeyError:
 				pass
 
