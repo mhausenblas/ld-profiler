@@ -3,11 +3,13 @@ The handler script.
 
 @author: Michael Hausenblas, http://sw-app.org/mic.xhtml#i
 @since: 2011-07-13
-@status: first stab
+@status: fixed issues
 """
 import sys
 import os
-sys.path.insert(0, os.getcwd() + 'lib/')
+sys.path.insert(0, os.getcwd() + '/lib/rdflib')
+sys.path.insert(0, os.getcwd() + '/lib/rdfextras')
+sys.path.insert(0, os.getcwd() + '/lib')
 import getopt
 import platform
 import urllib
@@ -27,8 +29,8 @@ from rdflib import XSD
 from rdflib.plugin import PluginException
 from SPARQLWrapper import SPARQLWrapper
 
-rdflib.plugin.register('sparql', rdflib.query.Processor, 'rdfextras.sparql.processor', 'Processor')
-rdflib.plugin.register('sparql', rdflib.query.Result, 'rdfextras.sparql.query', 'SPARQLQueryResult')
+rdflib.plugin.register('sparql', rdflib.query.Processor, 'sparql.processor', 'Processor')
+rdflib.plugin.register('sparql', rdflib.query.Result, 'sparql.query', 'SPARQLQueryResult')
 
 class LinkedDataProfiler(object):
 	
@@ -40,7 +42,7 @@ class LinkedDataProfiler(object):
 					'dc' : Namespace('http://purl.org/dc/terms/') 
 	}
 
-	LDID_QUERY = """SELECT * WHERE { 
+	LDID_QUERY = """SELECT ?ds ?title ?description ?sparqlep ?example WHERE { 
 					?ds a void:Dataset ; 
 						dc:title ?title; 
 						dc:description ?description; 
@@ -92,6 +94,8 @@ class LinkedDataProfiler(object):
 			self.timr['sparql'][q]['result'] = result
 
 	def profile_sparql(self, query_str):
+		sys.stdout.write('.')
+		sys.stdout.flush()
 		t = stopwatch.Timer()
 		res = self.query_SPARQL_Endpoint(self.sparl_ep, query_str)
 		t.stop()
@@ -140,18 +144,17 @@ class LinkedDataProfiler(object):
 		self.g.parse(file_name, format='n3')
 		res = self.g.query(LinkedDataProfiler.LDID_QUERY, initNs=LinkedDataProfiler.NAMESPACES)
 		self.examples = []
-		for r in res.bindings:
-			if r['ds']: self.ds_uri = r['ds']
-			if r['title']: self.title = r['title']
-			if r['description']: self.description = r['description']
+		# ?ds ?title ?description ?sparqlep ?example
+		for r in res:
+			self.ds_uri = str(r[0])
+			self.title = str(r[1])
+			self.description = str(r[2])
 			try:
-				if r['sparqlep']:
-					self.sparl_ep = r['sparqlep']
+				self.sparl_ep = str(r[3])
 			except KeyError:
 				pass
 			try:
-				if r['example']:
-					self.examples.append(r['example'])
+				self.examples.append(str(r[4]))
 			except KeyError:
 				pass
 
@@ -207,9 +210,9 @@ class LinkedDataProfiler(object):
 			
 		print('\n' + '='*80 + '\n')
 
-	def usage(self):
-		print("Usage: python ldpro.py -p {path to Linked Data interface description file} [number of runs (optional, defaults to 3)]")
-		print("Example: python ldpro.py -p test/ldid-dbpedia.ttl")
+def usage():
+	print("Usage: python ldpro.py -p {path to Linked Data interface description file} [number of runs (optional, defaults to 3)]")
+	print("Example: python ldpro.py -p test/ldid-dbpedia.ttl")
 
 if __name__ == "__main__":
 	ldpro = LinkedDataProfiler()

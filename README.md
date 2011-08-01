@@ -86,7 +86,7 @@ This software is in the Public Domain.
 
 ## Ideas
 
-* SPARQL runs: externalise input and show progress indicators (.)
+* SPARQL runs: externalise input so that new queries can be added without changing the script
 * JSON output
 * GAE app with URI
 	* Graphical representation of the results (bar chart, avg.)
